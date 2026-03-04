@@ -8,12 +8,12 @@ import { useToast } from "@/hooks/use-toast";
 const VALID_PLANS = [3, 5, 10] as const;
 
 const GALLERY_IMAGES = Array.from({ length: 12 }, (_, i) => ({
-  id: `style-${i + 1}`,
+  id: `estilo-${i + 1}`,
   src: `/images/gallery-${i + 1}.jpg`,
-  name: `Style ${i + 1}`,
+  name: `Estilo ${i + 1}`,
 }));
 
-const WEBHOOK_URL = "https://your-webhook-endpoint.com/submit"; // Replace with your n8n webhook
+const WEBHOOK_URL = "https://your-webhook-endpoint.com/submit";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
@@ -60,16 +60,16 @@ const Index = () => {
         body: formData,
       });
 
-      if (!response.ok) throw new Error("Submission failed");
+      if (!response.ok) throw new Error("Falha no envio");
 
       toast({
-        title: "Success!",
-        description: "Your photos have been submitted successfully.",
+        title: "Sucesso!",
+        description: "Suas fotos foram enviadas com sucesso.",
       });
     } catch {
       toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
+        title: "Erro",
+        description: "Algo deu errado. Tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -79,41 +79,39 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+      {/* Cabeçalho */}
       <header className="pt-12 pb-8 md:pt-20 md:pb-12 text-center px-4">
-        {/* Logo placeholder */}
         <div className="w-16 h-16 md:w-20 md:h-20 mx-auto mb-6 rounded-full border border-primary/30 flex items-center justify-center">
           <span className="font-display text-2xl md:text-3xl text-gold-gradient font-bold">L</span>
         </div>
         <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-light tracking-wide text-gold-gradient mb-4">
-          Choose Your Photos
+          Escolha Suas Fotos
         </h1>
         <p className="text-muted-foreground font-body text-sm md:text-base tracking-[0.2em] uppercase max-w-xl mx-auto">
-          Upload your face photos and select your favorite styles
+          Envie suas fotos do rosto e selecione seus estilos favoritos
         </p>
         <div className="mt-6 w-24 h-px mx-auto bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
       </header>
 
-      {/* Invalid plan warning */}
+      {/* Aviso de plano inválido */}
       {!isValidPlan && (
         <div className="max-w-lg mx-auto px-4 mb-12">
           <div className="flex items-center gap-3 p-4 rounded border border-destructive/40 bg-destructive/5">
             <AlertTriangle className="w-5 h-5 text-destructive shrink-0" />
             <p className="text-sm font-body text-destructive">
-              Invalid or missing plan. Please use a valid link with <code className="text-foreground">?plan=3</code>, <code className="text-foreground">?plan=5</code>, or <code className="text-foreground">?plan=10</code>.
+              Plano inválido ou ausente. Use um link válido com <code className="text-foreground">?plan=3</code>, <code className="text-foreground">?plan=5</code> ou <code className="text-foreground">?plan=10</code>.
             </p>
           </div>
         </div>
       )}
 
       <main className={`max-w-6xl mx-auto px-4 pb-20 space-y-16 ${!isValidPlan ? "opacity-40 pointer-events-none select-none" : ""}`}>
-        {/* Face Upload */}
+        {/* Upload de Fotos */}
         <FaceUploadSection facePhotos={facePhotos} onFacePhotosChange={setFacePhotos} />
 
-        {/* Divider */}
         <div className="w-32 h-px mx-auto bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
-        {/* Gallery */}
+        {/* Galeria */}
         <GallerySection
           images={GALLERY_IMAGES}
           selectedIds={selectedGallery}
@@ -122,57 +120,55 @@ const Index = () => {
           disabled={!isValidPlan}
         />
 
-        {/* Divider */}
         <div className="w-32 h-px mx-auto bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
-        {/* Contact */}
+        {/* Dados de Contato */}
         <section className="max-w-md mx-auto space-y-6">
           <h2 className="font-display text-3xl md:text-4xl font-light tracking-wide text-gold-gradient text-center">
-            Your Details
+            Seus Dados
           </h2>
 
           <div className="space-y-4">
             <div>
               <label className="block text-xs font-body tracking-widest uppercase text-muted-foreground mb-2">
-                Email <span className="text-primary">*</span>
+                E-mail <span className="text-primary">*</span>
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
+                placeholder="seu@email.com"
                 className="w-full px-4 py-3 rounded border border-border bg-card text-foreground font-body text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
               />
             </div>
             <div>
               <label className="block text-xs font-body tracking-widest uppercase text-muted-foreground mb-2">
-                WhatsApp <span className="text-muted-foreground/50">(optional)</span>
+                WhatsApp <span className="text-muted-foreground/50">(opcional)</span>
               </label>
               <input
                 type="tel"
                 value={whatsapp}
                 onChange={(e) => setWhatsapp(e.target.value)}
-                placeholder="+1 (555) 000-0000"
+                placeholder="+55 (11) 99999-0000"
                 className="w-full px-4 py-3 rounded border border-border bg-card text-foreground font-body text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
               />
             </div>
           </div>
         </section>
 
-        {/* Submit */}
+        {/* Botão Enviar */}
         <div className="text-center space-y-4">
-          {/* Status summary */}
           <div className="flex flex-wrap justify-center gap-4 text-xs font-body tracking-wider uppercase text-muted-foreground">
             <span className={facePhotos.length === 3 ? "text-primary" : ""}>
-              Face photos: {facePhotos.length}/3
+              Fotos do rosto: {facePhotos.length}/3
             </span>
             <span className="text-border">|</span>
             <span className={selectedGallery.length === maxSelections ? "text-primary" : ""}>
-              Styles: {selectedGallery.length}/{maxSelections}
+              Estilos: {selectedGallery.length}/{maxSelections}
             </span>
             <span className="text-border">|</span>
             <span className={emailValid ? "text-primary" : ""}>
-              Email: {emailValid ? "✓" : "required"}
+              E-mail: {emailValid ? "✓" : "obrigatório"}
             </span>
           </div>
 
@@ -190,16 +186,16 @@ const Index = () => {
             ) : (
               <Send className="w-4 h-4" />
             )}
-            Submit Selection
+            Enviar Seleção
           </button>
         </div>
       </main>
 
-      {/* Footer */}
+      {/* Rodapé */}
       <footer className="py-8 text-center">
         <div className="w-16 h-px mx-auto mb-4 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
         <p className="text-xs text-muted-foreground/50 font-body tracking-widest uppercase">
-          Premium Photography Experience
+          Experiência Premium de Fotografia
         </p>
       </footer>
     </div>
