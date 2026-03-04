@@ -10,7 +10,7 @@ const VALID_PLANS = [3, 5, 10] as const;
 const GALLERY_IMAGES = Array.from({ length: 12 }, (_, i) => ({
   id: `estilo-${i + 1}`,
   src: `/images/gallery-${i + 1}.jpg`,
-  name: `Estilo ${i + 1}`,
+  name: `Estilo ${i + 1}`
 }));
 
 const WEBHOOK_URL = "https://your-webhook-endpoint.com/submit";
@@ -31,17 +31,17 @@ const Index = () => {
 
   const toggleGallery = (id: string) => {
     setSelectedGallery((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
   };
 
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   const canSubmit =
-    isValidPlan &&
-    facePhotos.length === 3 &&
-    selectedGallery.length === maxSelections &&
-    emailValid &&
-    !submitting;
+  isValidPlan &&
+  facePhotos.length === 3 &&
+  selectedGallery.length === maxSelections &&
+  emailValid &&
+  !submitting;
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
@@ -57,20 +57,20 @@ const Index = () => {
 
       const response = await fetch(WEBHOOK_URL, {
         method: "POST",
-        body: formData,
+        body: formData
       });
 
       if (!response.ok) throw new Error("Falha no envio");
 
       toast({
         title: "Sucesso!",
-        description: "Suas fotos foram enviadas com sucesso.",
+        description: "Suas fotos foram enviadas com sucesso."
       });
     } catch {
       toast({
         title: "Erro",
         description: "Algo deu errado. Tente novamente.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setSubmitting(false);
@@ -82,7 +82,7 @@ const Index = () => {
       {/* Cabeçalho */}
       <header className="pt-12 pb-8 md:pt-20 md:pb-12 text-center px-4">
         <div className="w-16 h-16 md:w-20 md:h-20 mx-auto mb-6 rounded-full border border-primary/30 flex items-center justify-center">
-          <span className="font-display text-2xl md:text-3xl text-gold-gradient font-bold">L</span>
+          <span className="font-display text-2xl md:text-3xl text-gold-gradient font-bold">​o</span>
         </div>
         <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-light tracking-wide text-gold-gradient mb-4">
           Escolha Suas Fotos
@@ -94,8 +94,8 @@ const Index = () => {
       </header>
 
       {/* Aviso de plano inválido */}
-      {!isValidPlan && (
-        <div className="max-w-lg mx-auto px-4 mb-12">
+      {!isValidPlan &&
+      <div className="max-w-lg mx-auto px-4 mb-12">
           <div className="flex items-center gap-3 p-4 rounded border border-destructive/40 bg-destructive/5">
             <AlertTriangle className="w-5 h-5 text-destructive shrink-0" />
             <p className="text-sm font-body text-destructive">
@@ -103,7 +103,7 @@ const Index = () => {
             </p>
           </div>
         </div>
-      )}
+      }
 
       <main className={`max-w-6xl mx-auto px-4 pb-20 space-y-16 ${!isValidPlan ? "opacity-40 pointer-events-none select-none" : ""}`}>
         {/* Upload de Fotos */}
@@ -117,8 +117,8 @@ const Index = () => {
           selectedIds={selectedGallery}
           maxSelections={maxSelections}
           onToggle={toggleGallery}
-          disabled={!isValidPlan}
-        />
+          disabled={!isValidPlan} />
+        
 
         <div className="w-32 h-px mx-auto bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
@@ -138,8 +138,8 @@ const Index = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="seu@email.com"
-                className="w-full px-4 py-3 rounded border border-border bg-card text-foreground font-body text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
-              />
+                className="w-full px-4 py-3 rounded border border-border bg-card text-foreground font-body text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all" />
+              
             </div>
             <div>
               <label className="block text-xs font-body tracking-widest uppercase text-muted-foreground mb-2">
@@ -150,8 +150,8 @@ const Index = () => {
                 value={whatsapp}
                 onChange={(e) => setWhatsapp(e.target.value)}
                 placeholder="+55 (11) 99999-0000"
-                className="w-full px-4 py-3 rounded border border-border bg-card text-foreground font-body text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
-              />
+                className="w-full px-4 py-3 rounded border border-border bg-card text-foreground font-body text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all" />
+              
             </div>
           </div>
         </section>
@@ -176,16 +176,16 @@ const Index = () => {
             onClick={handleSubmit}
             disabled={!canSubmit}
             className={`inline-flex items-center gap-3 px-10 py-4 rounded font-body text-sm tracking-[0.2em] uppercase transition-all duration-300 ${
-              canSubmit
-                ? "bg-gold-gradient text-primary-foreground shadow-gold-lg hover:shadow-gold cursor-pointer"
-                : "bg-muted text-muted-foreground cursor-not-allowed"
-            }`}
-          >
-            {submitting ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Send className="w-4 h-4" />
-            )}
+            canSubmit ?
+            "bg-gold-gradient text-primary-foreground shadow-gold-lg hover:shadow-gold cursor-pointer" :
+            "bg-muted text-muted-foreground cursor-not-allowed"}`
+            }>
+            
+            {submitting ?
+            <Loader2 className="w-4 h-4 animate-spin" /> :
+
+            <Send className="w-4 h-4" />
+            }
             Enviar Seleção
           </button>
         </div>
@@ -198,8 +198,8 @@ const Index = () => {
           Experiência Premium de Fotografia
         </p>
       </footer>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Index;
