@@ -24,24 +24,25 @@ const GallerySection = ({ images, selectedIds, maxSelections, onToggle, disabled
           Selecione Seus Estilos
         </h2>
         <p className="text-muted-foreground font-body text-sm tracking-widest uppercase">
-          Escolha seus retratos favoritos da nossa coleção
+          Escolha seus retratos favoritos da nossa coleção premium
         </p>
       </div>
 
       {/* Contador */}
       <div className="text-center">
-        <span className="font-display text-2xl tracking-wider text-gold-gradient">
-          Imagens selecionadas: {selectedIds.length} / {maxSelections}
+        <span className="font-display md:text-2xl text-xl tracking-wider text-gold-gradient bg-primary/5 px-6 py-2 rounded-full inline-block border border-primary/20 shadow-sm">
+          Selecionadas: {selectedIds.length} / {maxSelections}
         </span>
       </div>
 
       {limitReached && (
-        <p className="text-center text-sm text-primary font-body animate-pulse">
-          Você atingiu o limite de seleção
+        <p className="text-center text-sm text-primary font-body animate-pulse font-medium">
+          ✧ Você atingiu o limite de seleção do seu plano ✧
         </p>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+      {/* Grid: 1 col on mobile, 2 on tablet, 3 on desktop */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 mt-10 max-w-5xl mx-auto">
         {images.map((image) => {
           const isSelected = selectedIds.includes(image.id);
           const isDisabled = disabled || (!isSelected && limitReached);
@@ -51,34 +52,41 @@ const GallerySection = ({ images, selectedIds, maxSelections, onToggle, disabled
               key={image.id}
               onClick={() => !isDisabled && onToggle(image.id)}
               disabled={isDisabled}
-              className={`relative aspect-[3/4] rounded overflow-hidden group transition-all duration-300 ${
-                isSelected
-                  ? "ring-2 ring-primary shadow-gold"
-                  : isDisabled
-                  ? "opacity-40 cursor-not-allowed"
-                  : "hover:ring-1 hover:ring-primary/50 cursor-pointer"
-              }`}
+              style={{ animationDelay: `${(parseInt(image.id.split('-')[1]) % 10) * 100}ms` }}
+              className={`relative aspect-[3/4] rounded-lg overflow-hidden group transition-all duration-700 ease-out animate-in fade-in slide-in-from-bottom-4 zoom-in-95 fill-mode-both ${isSelected
+                ? "ring-[3px] ring-primary shadow-[0_0_30px_rgba(212,175,55,0.4)] scale-[0.98]"
+                : isDisabled
+                  ? "opacity-40 cursor-not-allowed grayscale-[50%]"
+                  : "hover:ring-1 hover:ring-primary/40 hover:shadow-[0_15px_30px_rgba(0,0,0,0.5)] cursor-pointer hover:-translate-y-2"
+                }`}
             >
               <img
                 src={image.src}
                 alt={image.name}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                className={`w-full h-full object-cover transition-transform duration-700 ease-in-out ${isSelected ? "scale-100" : "group-hover:scale-110"
+                  }`}
                 loading="lazy"
               />
+
+              {/* Overlay Gradient */}
               <div
-                className={`absolute inset-0 transition-all duration-300 ${
-                  isSelected
-                    ? "bg-primary/10"
-                    : "bg-background/0 group-hover:bg-background/20"
-                }`}
+                className={`absolute inset-0 transition-all duration-500 ${isSelected
+                  ? "bg-primary/20 backdrop-brightness-90 mix-blend-multiply"
+                  : "bg-gradient-to-t from-black/80 via-black/10 to-black/10 opacity-70 group-hover:opacity-40"
+                  }`}
               />
+
+              {/* Checkmark Premium */}
               {isSelected && (
-                <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-gold-gradient flex items-center justify-center">
-                  <Check className="w-4 h-4 text-primary-foreground" />
+                <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-gradient-to-br from-[#D4AF37] via-[#F3E5AB] to-[#AA771C] flex items-center justify-center shadow-[0_0_20px_rgba(212,175,55,0.6)] transform scale-in-center animate-in zoom-in-50 spin-in-12 duration-500 ring-2 ring-white/50 z-10">
+                  <Check className="w-5 h-5 text-black drop-shadow-sm stroke-[3]" />
                 </div>
               )}
-              <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-background/80 to-transparent">
-                <span className="text-xs font-body tracking-wider text-foreground/80 uppercase">
+
+              {/* Image Title */}
+              <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black sm:from-black/90 to-transparent">
+                <span className={`text-sm md:text-base font-display tracking-widest uppercase transition-colors duration-300 ${isSelected ? "text-[#D4AF37] font-medium" : "text-white/90"
+                  }`}>
                   {image.name}
                 </span>
               </div>

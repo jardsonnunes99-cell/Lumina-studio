@@ -40,9 +40,9 @@ const FaceUploadSection = ({ facePhotos, onFacePhotosChange }: FaceUploadSection
         {[0, 1, 2].map((index) => {
           const photo = facePhotos[index];
           return (
-            <div key={index} className="relative aspect-square">
+            <div key={index} className="relative aspect-square group animate-in fade-in zoom-in duration-500" style={{ animationDelay: `${index * 150}ms` }}>
               {photo ? (
-                <div className="relative w-full h-full rounded border border-primary/40 overflow-hidden group">
+                <div className="relative w-full h-full rounded-xl border border-primary/40 shadow-[0_0_15px_rgba(212,175,55,0.1)] overflow-hidden group-hover:shadow-[0_0_25px_rgba(212,175,55,0.2)] transition-all duration-500">
                   <img
                     src={URL.createObjectURL(photo)}
                     alt={`Foto do rosto ${index + 1}`}
@@ -58,17 +58,17 @@ const FaceUploadSection = ({ facePhotos, onFacePhotosChange }: FaceUploadSection
                 </div>
               ) : (
                 <label
-                  className={`flex flex-col items-center justify-center w-full h-full rounded border-2 border-dashed cursor-pointer transition-all duration-300 ${
-                    dragOver
-                      ? "border-primary bg-primary/5"
-                      : "border-muted-foreground/30 hover:border-primary/50 hover:bg-muted/30"
-                  }`}
+                  className={`flex flex-col items-center justify-center w-full h-full rounded-xl border border-dashed cursor-pointer transition-all duration-500 overflow-hidden relative ${dragOver
+                      ? "border-primary bg-primary/10 shadow-[0_0_30px_rgba(212,175,55,0.2)] scale-[1.02]"
+                      : "border-white/20 bg-black/40 backdrop-blur-sm hover:border-primary/60 hover:bg-black/60 hover:shadow-[0_0_20px_rgba(212,175,55,0.15)] hover:-translate-y-1"
+                    }`}
                   onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                   onDragLeave={() => setDragOver(false)}
                   onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFiles(e.dataTransfer.files); }}
                 >
-                  <Camera className="w-8 h-8 text-muted-foreground mb-2" />
-                  <span className="text-xs text-muted-foreground font-body">Foto {index + 1}</span>
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
+                  <Camera className={`w-8 h-8 md:w-10 md:h-10 mb-3 transition-colors duration-500 ${dragOver ? "text-primary" : "text-white/50 group-hover:text-primary/80"}`} />
+                  <span className="text-xs md:text-sm text-white/70 font-display tracking-widest uppercase">Foto {index + 1}</span>
                   <input
                     type="file"
                     accept=".jpg,.jpeg,.png"

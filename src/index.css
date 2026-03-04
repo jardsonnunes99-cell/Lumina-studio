@@ -64,6 +64,10 @@
 
   body {
     @apply bg-background text-foreground;
+    background-color: #0A0A0A;
+    background-image: 
+      radial-gradient(circle at 15% 50%, rgba(212, 175, 55, 0.08), transparent 40%), 
+      radial-gradient(circle at 85% 30%, rgba(212, 175, 55, 0.05), transparent 40%);
     font-family: var(--font-body);
   }
 
