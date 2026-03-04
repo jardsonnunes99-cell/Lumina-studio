@@ -21,23 +21,23 @@ const GallerySection = ({ images, selectedIds, maxSelections, onToggle, disabled
     <section className="space-y-6">
       <div className="text-center space-y-2">
         <h2 className="font-display text-3xl md:text-4xl font-light tracking-wide text-gold-gradient">
-          Select Your Styles
+          Selecione Seus Estilos
         </h2>
         <p className="text-muted-foreground font-body text-sm tracking-widest uppercase">
-          Choose your favorite portraits from our collection
+          Escolha seus retratos favoritos da nossa coleção
         </p>
       </div>
 
-      {/* Live Counter */}
+      {/* Contador */}
       <div className="text-center">
         <span className="font-display text-2xl tracking-wider text-gold-gradient">
-          Selected images: {selectedIds.length} / {maxSelections}
+          Imagens selecionadas: {selectedIds.length} / {maxSelections}
         </span>
       </div>
 
       {limitReached && (
         <p className="text-center text-sm text-primary font-body animate-pulse">
-          You have reached your selection limit
+          Você atingiu o limite de seleção
         </p>
       )}
 
@@ -65,8 +65,6 @@ const GallerySection = ({ images, selectedIds, maxSelections, onToggle, disabled
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 loading="lazy"
               />
-
-              {/* Overlay */}
               <div
                 className={`absolute inset-0 transition-all duration-300 ${
                   isSelected
@@ -74,15 +72,11 @@ const GallerySection = ({ images, selectedIds, maxSelections, onToggle, disabled
                     : "bg-background/0 group-hover:bg-background/20"
                 }`}
               />
-
-              {/* Check badge */}
               {isSelected && (
                 <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-gold-gradient flex items-center justify-center">
                   <Check className="w-4 h-4 text-primary-foreground" />
                 </div>
               )}
-
-              {/* Name label */}
               <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-background/80 to-transparent">
                 <span className="text-xs font-body tracking-wider text-foreground/80 uppercase">
                   {image.name}

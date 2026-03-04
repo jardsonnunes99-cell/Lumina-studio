@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Upload, X, Camera } from "lucide-react";
+import { X, Camera } from "lucide-react";
 
 interface FaceUploadSectionProps {
   facePhotos: File[];
@@ -29,10 +29,10 @@ const FaceUploadSection = ({ facePhotos, onFacePhotosChange }: FaceUploadSection
     <section className="space-y-6">
       <div className="text-center space-y-2">
         <h2 className="font-display text-3xl md:text-4xl font-light tracking-wide text-gold-gradient">
-          Upload 3 Face Photos
+          Envie 3 Fotos do Rosto
         </h2>
         <p className="text-muted-foreground font-body text-sm tracking-widest uppercase">
-          Front-facing, well-lit photos without accessories
+          Fotos frontais, bem iluminadas e sem acessórios
         </p>
       </div>
 
@@ -45,7 +45,7 @@ const FaceUploadSection = ({ facePhotos, onFacePhotosChange }: FaceUploadSection
                 <div className="relative w-full h-full rounded border border-primary/40 overflow-hidden group">
                   <img
                     src={URL.createObjectURL(photo)}
-                    alt={`Face photo ${index + 1}`}
+                    alt={`Foto do rosto ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
                   <button
@@ -68,7 +68,7 @@ const FaceUploadSection = ({ facePhotos, onFacePhotosChange }: FaceUploadSection
                   onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFiles(e.dataTransfer.files); }}
                 >
                   <Camera className="w-8 h-8 text-muted-foreground mb-2" />
-                  <span className="text-xs text-muted-foreground font-body">Photo {index + 1}</span>
+                  <span className="text-xs text-muted-foreground font-body">Foto {index + 1}</span>
                   <input
                     type="file"
                     accept=".jpg,.jpeg,.png"
@@ -84,13 +84,13 @@ const FaceUploadSection = ({ facePhotos, onFacePhotosChange }: FaceUploadSection
 
       {facePhotos.length > 0 && facePhotos.length < 3 && (
         <p className="text-center text-sm text-primary/70 font-body">
-          {3 - facePhotos.length} more photo{3 - facePhotos.length > 1 ? "s" : ""} required
+          Falta{3 - facePhotos.length > 1 ? "m" : ""} {3 - facePhotos.length} foto{3 - facePhotos.length > 1 ? "s" : ""}
         </p>
       )}
       {facePhotos.length === 3 && (
         <p className="text-center text-sm text-primary font-body flex items-center justify-center gap-2">
           <span className="inline-block w-2 h-2 rounded-full bg-primary" />
-          All 3 photos uploaded
+          3 fotos enviadas com sucesso
         </p>
       )}
     </section>
