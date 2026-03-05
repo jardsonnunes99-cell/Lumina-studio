@@ -113,10 +113,12 @@ const Index = () => {
     setIsLoggingIn(true);
     const cleanPhone = loginPhone.replace(/\D/g, '');
 
+    // Busca compras onde o telefone_cliente termina com os números digitados
+    // Isso resolve o problema da Cakto salvar "551199999" e o cliente digitar "1199999"
     const { data, error } = await supabase
       .from('compras')
       .select('transaction_id, fotos_permitidas')
-      .eq('telefone_cliente', cleanPhone)
+      .like('telefone_cliente', `%${cleanPhone}`)
       .order('created_at', { ascending: false })
       .limit(1)
       .single();
