@@ -55,9 +55,18 @@ const Agradecimento = () => {
 
                 <div className="w-24 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent mx-auto mb-10" />
 
-                <p className="font-body text-sm md:text-base tracking-[0.15em] uppercase text-primary font-medium bg-black/40 px-6 py-3 rounded-full border border-primary/20 shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+                <p className="font-body text-sm md:text-base tracking-[0.15em] uppercase text-primary font-medium bg-black/40 px-6 py-3 rounded-full border border-primary/20 shadow-[0_4px_20px_rgba(0,0,0,0.3)] mb-10">
                     Fique atento às mensagens para não perder o contato.
                 </p>
+
+                <a
+                    href="https://pay.cakto.com.br/gzpt22b_777726"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative overflow-hidden inline-flex items-center justify-center gap-3 px-10 py-4 rounded-lg font-body text-sm tracking-[0.2em] uppercase transition-all duration-500 bg-gold-gradient text-black font-semibold shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:shadow-[0_0_50px_rgba(212,175,55,0.6)] hover:-translate-y-1 w-full sm:w-auto"
+                >
+                    Garantir mais fotos
+                </a>
             </div>
         </div>
     );
