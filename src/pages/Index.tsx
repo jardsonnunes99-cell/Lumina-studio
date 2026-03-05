@@ -32,8 +32,6 @@ const Index = () => {
 
   const [facePhotos, setFacePhotos] = useState<File[]>([]);
   const [selectedGallery, setSelectedGallery] = useState<string[]>([]);
-  const [nome, setNome] = useState("");
-  const [whatsapp, setWhatsapp] = useState("");
   const [age, setAge] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [showSuccessMsg, setShowSuccessMsg] = useState(false);
@@ -138,12 +136,10 @@ const Index = () => {
     setIsLoggingIn(false);
   };
 
-  const nomeValid = nome.trim().length > 1;
-  const whatsappValid = whatsapp.trim().length > 8;
   const ageValid = age.trim().length > 0;
 
-  // O botão fica "vivo" assim que os dados de contato estiverem presentes.
-  const isButtonActive = nomeValid && whatsappValid && !submitting;
+  // O botão fica "vivo" sem contato adicional
+  const isButtonActive = !submitting;
 
   if (!isSupabaseConfigured) {
     return (
@@ -236,8 +232,6 @@ const Index = () => {
       const { data: clienteData, error: clienteError } = await supabase
         .from('clientes')
         .insert([{
-          nome_cliente: nome.trim(),
-          numero_cliente: whatsapp.trim(),
           idade_cliente: parseInt(age.trim(), 10),
           transaction_id: activeTransactionId
         }])
@@ -402,38 +396,7 @@ const Index = () => {
 
         <div className="w-32 h-px mx-auto bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
-        {/* Dados de Contato */}
-        <section ref={formRef} className="max-w-md mx-auto space-y-6 pt-4">
-          <h2 className="font-display text-3xl md:text-4xl font-light tracking-wide text-gold-gradient text-center">
-            Preencha para receber as fotos no seu WhatsApp
-          </h2>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-xs font-body tracking-widest uppercase text-muted-foreground mb-2">
-                Nome <span className="text-primary">*</span>
-              </label>
-              <input
-                type="text"
-                value={nome}
-                onChange={(e) => setNome(e.target.value)}
-                placeholder="Digite seu nome"
-                className="w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 backdrop-blur-md text-white font-body text-sm placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 hover:bg-white/10 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.2)]" />
-            </div>
-            <div>
-              <label className="block text-xs font-body tracking-widest uppercase text-muted-foreground mb-2">
-                WhatsApp <span className="text-primary">*</span>
-              </label>
-              <input
-                type="tel"
-                value={whatsapp}
-                onChange={(e) => setWhatsapp(e.target.value)}
-                placeholder="Ex: (11) 9XXXX-XXXX"
-                className="w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 backdrop-blur-md text-white font-body text-sm placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 hover:bg-white/10 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.2)]" />
-
-            </div>
-          </div>
-        </section>
+        <div ref={formRef} />
 
         {/* Botão Enviar */}
         <div className="text-center space-y-4">
@@ -444,10 +407,6 @@ const Index = () => {
             <span className="text-border">|</span>
             <span className={selectedGallery.length === maxSelections ? "text-primary" : ""}>
               Estilos: {selectedGallery.length}/{maxSelections}
-            </span>
-            <span className="text-border">|</span>
-            <span className={nomeValid && whatsappValid ? "text-primary" : ""}>
-              Contato: {nomeValid && whatsappValid ? "✓" : "obrigatório"}
             </span>
           </div>
 
