@@ -22,27 +22,7 @@ const Index = () => {
   const [searchParams] = useSearchParams();
   const transactionId = searchParams.get("transaction_id");
 
-  if (!isSupabaseConfigured) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
-        <AlertTriangle className="w-16 h-16 text-destructive mb-6" />
-        <h1 className="text-3xl font-display font-light text-white mb-4">Configuração Incompleta</h1>
-        <p className="text-muted-foreground max-w-lg mb-8 font-body leading-relaxed">
-          As variáveis de ambiente do banco de dados não foram fornecidas. O site não pode ser carregado com segurança.
-        </p>
-        <div className="bg-white/5 border border-white/10 rounded-xl p-6 text-left w-full max-w-lg">
-          <h3 className="text-white font-semibold mb-2">Como resolver (Se estiver na Vercel):</h3>
-          <ul className="list-decimal pl-5 space-y-2 text-sm text-white/70">
-            <li>Acesse o painel do seu projeto na Vercel.</li>
-            <li>Vá na aba <strong>Settings</strong> &gt; <strong>Environment Variables</strong>.</li>
-            <li>Adicione a chave <code className="bg-black/50 px-2 py-1 rounded text-primary">VITE_SUPABASE_URL</code> e o seu valor.</li>
-            <li>Adicione a chave <code className="bg-black/50 px-2 py-1 rounded text-primary">VITE_SUPABASE_ANON_KEY</code> e o seu valor.</li>
-            <li>Faça um novo <strong>Deploy</strong> e atualize esta página.</li>
-          </ul>
-        </div>
-      </div>
-    );
-  }
+
 
   const [maxSelections, setMaxSelections] = useState<number>(0);
   const [isLoadingTransaction, setIsLoadingTransaction] = useState(true);
@@ -62,6 +42,14 @@ const Index = () => {
 
   useEffect(() => {
     async function checkTransaction() {
+      const isLocalBypass = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+      if (isLocalBypass) {
+        setMaxSelections(59); // Acesso livre e ilimitado para testes na própria máquina
+        setIsLoadingTransaction(false);
+        return;
+      }
+
       if (!transactionId) {
         setTransactionError("Nenhum código de transação fornecido na URL (?transaction_id=...).");
         setIsLoadingTransaction(false);
@@ -117,11 +105,35 @@ const Index = () => {
   // O botão fica "vivo" assim que os dados de contato estiverem presentes.
   const isButtonActive = nomeValid && whatsappValid && !submitting;
 
+  if (!isSupabaseConfigured) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
+        <AlertTriangle className="w-16 h-16 text-destructive mb-6" />
+        <h1 className="text-3xl font-display font-light text-white mb-4">Configuração Incompleta</h1>
+        <p className="text-muted-foreground max-w-lg mb-8 font-body leading-relaxed">
+          As variáveis de ambiente do banco de dados não foram fornecidas. O site não pode ser carregado com segurança.
+        </p>
+        <div className="bg-white/5 border border-white/10 rounded-xl p-6 text-left w-full max-w-lg">
+          <h3 className="text-white font-semibold mb-2">Como resolver (Se estiver na Vercel):</h3>
+          <ul className="list-decimal pl-5 space-y-2 text-sm text-white/70">
+            <li>Acesse o painel do seu projeto na Vercel.</li>
+            <li>Vá na aba <strong>Settings</strong> &gt; <strong>Environment Variables</strong>.</li>
+            <li>Adicione a chave <code className="bg-black/50 px-2 py-1 rounded text-primary">VITE_SUPABASE_URL</code> e o seu valor.</li>
+            <li>Adicione a chave <code className="bg-black/50 px-2 py-1 rounded text-primary">VITE_SUPABASE_ANON_KEY</code> e o seu valor.</li>
+            <li>Faça um novo <strong>Deploy</strong> e atualize esta página.</li>
+          </ul>
+        </div>
+      </div>
+    );
+  }
+
   const handleSubmit = async () => {
     // Bloqueia se o nome ou whatsapp estiver faltando
     if (!isButtonActive) return;
 
-    if (transactionError || !transactionId || isLoadingTransaction) {
+    const isLocalBypass = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+    if (!isLocalBypass && (transactionError || !transactionId || isLoadingTransaction)) {
       toast({ title: "Atenção", description: "Vínculo de pagamento ausente. Não é possível continuar.", variant: "destructive" });
       return;
     }
@@ -147,6 +159,9 @@ const Index = () => {
     setSubmitting(true);
 
     try {
+      const isLocalBypass = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const safeTransactionId = isLocalBypass && !transactionId ? 'local_bypass' : transactionId;
+
       // 1. Inserir Cliente no Banco (Tabela: clientes)
       const { data: clienteData, error: clienteError } = await supabase
         .from('clientes')
@@ -154,7 +169,7 @@ const Index = () => {
           nome_cliente: nome.trim(),
           numero_cliente: whatsapp.trim(),
           idade_cliente: parseInt(age.trim(), 10),
-          transaction_id: transactionId
+          transaction_id: safeTransactionId
         }])
         .select()
         .single();
