@@ -118,7 +118,7 @@ const Index = () => {
     const { data, error } = await supabase
       .from('compras')
       .select('transaction_id, fotos_permitidas')
-      .like('telefone_cliente', `%${cleanPhone}`)
+      .eq('telefone_cliente', cleanPhone)
       .order('created_at', { ascending: false })
       .limit(1)
       .single();
