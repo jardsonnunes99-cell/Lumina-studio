@@ -124,7 +124,11 @@ const Index = () => {
       .single();
 
     if (error || !data) {
-      toast({ title: "Acesso Negado", description: "O sistema não encontrou uma compra aprovada para este número na Cakto. Verifique se digitou corretamente o mesmo número da compra no checkout.", variant: "destructive" });
+      toast({
+        title: "Acesso Negado",
+        description: `Não encontramos: ${cleanPhone}. Erro Supabase: ${error?.message || 'Sem dados'}. Verifique se digitou corretamente o mesmo número da compra no checkout.`,
+        variant: "destructive"
+      });
       setIsLoggingIn(false);
       return;
     }
