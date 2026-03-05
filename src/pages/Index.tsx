@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { AlertTriangle, Send, Loader2, Instagram } from "lucide-react";
+import { AlertTriangle, Send, Loader2, Instagram, LogIn, Phone } from "lucide-react";
 import Confetti from 'react-confetti';
 import { useWindowSize } from 'react-use';
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
@@ -16,17 +16,19 @@ const GALLERY_IMAGES = Array.from({ length: 59 }, (_, i) => ({
   name: `Ensaio ${i + 1}`
 }));
 
-const WEBHOOK_URL = "https://your-webhook-endpoint.com/submit";
-
 const Index = () => {
   const [searchParams] = useSearchParams();
-  const transactionId = searchParams.get("transaction_id");
+  const urlTransactionId = searchParams.get("transaction_id");
 
-
-
+  const [activeTransactionId, setActiveTransactionId] = useState<string | null>(urlTransactionId);
   const [maxSelections, setMaxSelections] = useState<number>(0);
   const [isLoadingTransaction, setIsLoadingTransaction] = useState(true);
   const [transactionError, setTransactionError] = useState<string | null>(null);
+
+  // Login states
+  const [needsLogin, setNeedsLogin] = useState(false);
+  const [loginPhone, setLoginPhone] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const [facePhotos, setFacePhotos] = useState<File[]>([]);
   const [selectedGallery, setSelectedGallery] = useState<string[]>([]);
@@ -47,11 +49,13 @@ const Index = () => {
       if (isLocalBypass) {
         setMaxSelections(59); // Acesso livre e ilimitado para testes na própria máquina
         setIsLoadingTransaction(false);
+        setActiveTransactionId('local_bypass');
         return;
       }
 
-      if (!transactionId) {
-        setTransactionError("Nenhum código de transação fornecido na URL (?transaction_id=...).");
+      if (!activeTransactionId) {
+        // Nao tem URL param, exibir a tela de login
+        setNeedsLogin(true);
         setIsLoadingTransaction(false);
         return;
       }
@@ -60,21 +64,22 @@ const Index = () => {
       const { data, error } = await supabase
         .from('compras')
         .select('fotos_permitidas')
-        .eq('transaction_id', transactionId)
+        .eq('transaction_id', activeTransactionId)
         .single();
 
       if (error || !data) {
-        setTransactionError("Transação não encontrada ou inválida. Acesse utilizando o link oficial enviado após a compra.");
+        setTransactionError("Transação não encontrada ou inválida. Verifique o link enviado após a compra.");
         setIsLoadingTransaction(false);
         return;
       }
 
       setMaxSelections(data.fotos_permitidas);
+      setNeedsLogin(false);
       setIsLoadingTransaction(false);
     }
 
     checkTransaction();
-  }, [transactionId]);
+  }, [activeTransactionId]);
 
   useEffect(() => {
     if (selectedGallery.length === maxSelections && maxSelections > 0) {
@@ -98,6 +103,35 @@ const Index = () => {
     );
   };
 
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!loginPhone.trim() || loginPhone.length < 10) {
+      toast({ title: "Telefone Inválido", description: "Digite o WhatsApp com DDD.", variant: "destructive" });
+      return;
+    }
+
+    setIsLoggingIn(true);
+    const cleanPhone = loginPhone.replace(/\D/g, '');
+
+    const { data, error } = await supabase
+      .from('compras')
+      .select('transaction_id, fotos_permitidas')
+      .eq('telefone_cliente', cleanPhone)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error || !data) {
+      toast({ title: "Acesso Negado", description: "O sistema não encontrou uma compra aprovada para este número na Cakto. Verifique se digitou corretamente o mesmo número da compra no checkout.", variant: "destructive" });
+      setIsLoggingIn(false);
+      return;
+    }
+
+    toast({ title: "Bem-vinda!", description: `Seu pacote com ${data.fotos_permitidas} fotos foi localizado.`, className: "bg-green-600 font-semibold text-white border-none" });
+    setActiveTransactionId(data.transaction_id);
+    setIsLoggingIn(false);
+  };
+
   const nomeValid = nome.trim().length > 1;
   const whatsappValid = whatsapp.trim().length > 8;
   const ageValid = age.trim().length > 0;
@@ -113,15 +147,52 @@ const Index = () => {
         <p className="text-muted-foreground max-w-lg mb-8 font-body leading-relaxed">
           As variáveis de ambiente do banco de dados não foram fornecidas. O site não pode ser carregado com segurança.
         </p>
-        <div className="bg-white/5 border border-white/10 rounded-xl p-6 text-left w-full max-w-lg">
-          <h3 className="text-white font-semibold mb-2">Como resolver (Se estiver na Vercel):</h3>
-          <ul className="list-decimal pl-5 space-y-2 text-sm text-white/70">
-            <li>Acesse o painel do seu projeto na Vercel.</li>
-            <li>Vá na aba <strong>Settings</strong> &gt; <strong>Environment Variables</strong>.</li>
-            <li>Adicione a chave <code className="bg-black/50 px-2 py-1 rounded text-primary">VITE_SUPABASE_URL</code> e o seu valor.</li>
-            <li>Adicione a chave <code className="bg-black/50 px-2 py-1 rounded text-primary">VITE_SUPABASE_ANON_KEY</code> e o seu valor.</li>
-            <li>Faça um novo <strong>Deploy</strong> e atualize esta página.</li>
-          </ul>
+      </div>
+    );
+  }
+
+  // --- LOGIN SCREEN (When no transaction present in URL) ---
+  if (needsLogin) {
+    return (
+      <div className="min-h-screen bg-background relative flex flex-col justify-center items-center px-4 overflow-hidden">
+        {/* Decorative Background Elements */}
+        <div className="absolute top-[10%] left-[10%] w-[50%] h-[50%] rounded-full bg-primary/5 blur-[120px]" />
+        <div className="absolute bottom-[20%] right-[10%] w-[40%] h-[60%] rounded-full bg-primary/5 blur-[120px]" />
+
+        <div className="z-10 w-full max-w-md">
+          <div className="mx-auto mb-10 w-40 h-40 relative rounded-full overflow-hidden border-2 border-primary/20 shadow-[0_0_40px_rgba(212,175,55,0.15)] flex items-center justify-center bg-black/40">
+            <img src="/images/logo.png" alt="Lumina Studio" className="w-full h-full object-cover" />
+          </div>
+
+          <div className="text-center mb-10">
+            <h1 className="font-display text-4xl font-light tracking-wide text-white mb-3">Bem-vinda à Lumina</h1>
+            <p className="text-muted-foreground font-body text-sm tracking-wider uppercase">Faça login com o WhatsApp cadastrado na sua compra</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div className="space-y-2 relative">
+              <Phone className="absolute top-1/2 -translate-y-1/2 left-4 text-white/40 w-5 h-5" />
+              <input
+                type="tel"
+                value={loginPhone}
+                onChange={(e) => setLoginPhone(e.target.value)}
+                placeholder="Ex: (11) 9XXXX-XXXX"
+                className="w-full pl-12 pr-4 py-4 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md text-white font-body text-base placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 hover:bg-white/10 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.2)]" />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoggingIn || loginPhone.length < 5}
+              className={`w-full relative overflow-hidden flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-body text-sm tracking-[0.2em] uppercase transition-all duration-500 group ${(loginPhone.length >= 5 && !isLoggingIn) ?
+                "bg-gold-gradient text-black shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:shadow-[0_0_50px_rgba(212,175,55,0.6)] cursor-pointer" :
+                "bg-white/5 text-white/30 border border-white/10 cursor-not-allowed backdrop-blur-sm"}`
+              }>
+              {isLoggingIn ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogIn className="w-5 h-5" />}
+              <span className="font-semibold">Localizar minha Compra</span>
+            </button>
+          </form>
+
+          <p className="text-xs text-center text-white/30 mt-8 font-body">LUMINA STUDIO © 2026 - TODOS OS DIREITOS RESERVADOS</p>
         </div>
       </div>
     );
@@ -131,17 +202,13 @@ const Index = () => {
     // Bloqueia se o nome ou whatsapp estiver faltando
     if (!isButtonActive) return;
 
-    const isLocalBypass = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-
-    if (!isLocalBypass && (transactionError || !transactionId || isLoadingTransaction)) {
+    if (!activeTransactionId) {
       toast({ title: "Atenção", description: "Vínculo de pagamento ausente. Não é possível continuar.", variant: "destructive" });
       return;
     }
 
     if (facePhotos.length < 3) {
       toast({ title: "Faltam Fotos do Rosto", description: `Envie 3 fotos de rosto. Você enviou ${facePhotos.length}, faltam ${3 - facePhotos.length} foto(s).`, variant: "destructive" });
-
-      // Rola suave de volta para a seção do rosto
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
@@ -159,9 +226,6 @@ const Index = () => {
     setSubmitting(true);
 
     try {
-      const isLocalBypass = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const safeTransactionId = isLocalBypass && !transactionId ? 'local_bypass' : transactionId;
-
       // 1. Inserir Cliente no Banco (Tabela: clientes)
       const { data: clienteData, error: clienteError } = await supabase
         .from('clientes')
@@ -169,7 +233,7 @@ const Index = () => {
           nome_cliente: nome.trim(),
           numero_cliente: whatsapp.trim(),
           idade_cliente: parseInt(age.trim(), 10),
-          transaction_id: safeTransactionId
+          transaction_id: activeTransactionId
         }])
         .select()
         .single();
@@ -186,19 +250,16 @@ const Index = () => {
         const fileName = `${clienteId}-rosto-${index + 1}-${Date.now()}.${fileExt}`;
         const filePath = `rostos/${fileName}`;
 
-        // Upload pro Storage
         const { error: uploadError } = await supabase.storage
           .from('uploads-clientes')
           .upload(filePath, file);
 
         if (uploadError) throw new Error("Erro ao fazer upload da imagem do rosto.");
 
-        // Pegar URL Pública
         const { data: { publicUrl } } = supabase.storage
           .from('uploads-clientes')
           .getPublicUrl(filePath);
 
-        // Preparar objeto para insert no BD
         return {
           cliente_id: clienteId,
           foto_url: publicUrl
@@ -215,7 +276,6 @@ const Index = () => {
 
       // 3. Salvar as fotos selecionadas da galeria (Vitrine)
       const selecionadasData = selectedGallery.map((fotoId) => {
-        // Encontrar a URL original baseado no ID selecionado
         const galleryItem = GALLERY_IMAGES.find(img => img.id === fotoId);
 
         return {
