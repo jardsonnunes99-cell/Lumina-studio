@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { AlertTriangle, Send, Loader2, Instagram } from "lucide-react";
 import Confetti from 'react-confetti';
 import { useWindowSize } from 'react-use';
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import FaceUploadSection from "@/components/FaceUploadSection";
 import GallerySection from "@/components/GallerySection";
 import { useToast } from "@/hooks/use-toast";
@@ -21,6 +21,28 @@ const WEBHOOK_URL = "https://your-webhook-endpoint.com/submit";
 const Index = () => {
   const [searchParams] = useSearchParams();
   const transactionId = searchParams.get("transaction_id");
+
+  if (!isSupabaseConfigured) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
+        <AlertTriangle className="w-16 h-16 text-destructive mb-6" />
+        <h1 className="text-3xl font-display font-light text-white mb-4">Configuração Incompleta</h1>
+        <p className="text-muted-foreground max-w-lg mb-8 font-body leading-relaxed">
+          As variáveis de ambiente do banco de dados não foram fornecidas. O site não pode ser carregado com segurança.
+        </p>
+        <div className="bg-white/5 border border-white/10 rounded-xl p-6 text-left w-full max-w-lg">
+          <h3 className="text-white font-semibold mb-2">Como resolver (Se estiver na Vercel):</h3>
+          <ul className="list-decimal pl-5 space-y-2 text-sm text-white/70">
+            <li>Acesse o painel do seu projeto na Vercel.</li>
+            <li>Vá na aba <strong>Settings</strong> &gt; <strong>Environment Variables</strong>.</li>
+            <li>Adicione a chave <code className="bg-black/50 px-2 py-1 rounded text-primary">VITE_SUPABASE_URL</code> e o seu valor.</li>
+            <li>Adicione a chave <code className="bg-black/50 px-2 py-1 rounded text-primary">VITE_SUPABASE_ANON_KEY</code> e o seu valor.</li>
+            <li>Faça um novo <strong>Deploy</strong> e atualize esta página.</li>
+          </ul>
+        </div>
+      </div>
+    );
+  }
 
   const [maxSelections, setMaxSelections] = useState<number>(0);
   const [isLoadingTransaction, setIsLoadingTransaction] = useState(true);
