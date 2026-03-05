@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { AlertTriangle, Send, Loader2, Instagram } from "lucide-react";
 import Confetti from 'react-confetti';
 import { useWindowSize } from 'react-use';
+import { supabase } from "@/lib/supabase";
 import FaceUploadSection from "@/components/FaceUploadSection";
 import GallerySection from "@/components/GallerySection";
 import { useToast } from "@/hooks/use-toast";
@@ -19,11 +20,11 @@ const WEBHOOK_URL = "https://your-webhook-endpoint.com/submit";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
-  const planParam = searchParams.get("plan");
-  const defaultPlan = 10;
-  const planNumber = planParam ? parseInt(planParam, 10) : defaultPlan;
-  const isValidPlan = VALID_PLANS.includes(planNumber as 3 | 5 | 10) || planNumber === defaultPlan;
-  const maxSelections = isValidPlan ? (VALID_PLANS.includes(planNumber as 3 | 5 | 10) ? planNumber : defaultPlan) : 0;
+  const transactionId = searchParams.get("transaction_id");
+
+  const [maxSelections, setMaxSelections] = useState<number>(0);
+  const [isLoadingTransaction, setIsLoadingTransaction] = useState(true);
+  const [transactionError, setTransactionError] = useState<string | null>(null);
 
   const [facePhotos, setFacePhotos] = useState<File[]>([]);
   const [selectedGallery, setSelectedGallery] = useState<string[]>([]);
@@ -36,6 +37,34 @@ const Index = () => {
   const { width, height } = useWindowSize();
   const formRef = useRef<HTMLElement>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    async function checkTransaction() {
+      if (!transactionId) {
+        setTransactionError("Nenhum código de transação fornecido na URL (?transaction_id=...).");
+        setIsLoadingTransaction(false);
+        return;
+      }
+
+      // Check if transaction exists in our 'compras' table
+      const { data, error } = await supabase
+        .from('compras')
+        .select('fotos_permitidas')
+        .eq('transaction_id', transactionId)
+        .single();
+
+      if (error || !data) {
+        setTransactionError("Transação não encontrada ou inválida. Acesse utilizando o link oficial enviado após a compra.");
+        setIsLoadingTransaction(false);
+        return;
+      }
+
+      setMaxSelections(data.fotos_permitidas);
+      setIsLoadingTransaction(false);
+    }
+
+    checkTransaction();
+  }, [transactionId]);
 
   useEffect(() => {
     if (selectedGallery.length === maxSelections && maxSelections > 0) {
@@ -70,8 +99,8 @@ const Index = () => {
     // Bloqueia se o nome ou whatsapp estiver faltando
     if (!isButtonActive) return;
 
-    if (!isValidPlan) {
-      toast({ title: "Atenção", description: "Plano inválido ou ausente. Não é possível continuar.", variant: "destructive" });
+    if (transactionError || !transactionId || isLoadingTransaction) {
+      toast({ title: "Atenção", description: "Vínculo de pagamento ausente. Não é possível continuar.", variant: "destructive" });
       return;
     }
 
@@ -96,20 +125,73 @@ const Index = () => {
     setSubmitting(true);
 
     try {
-      const formData = new FormData();
-      formData.append("plan", String(maxSelections));
-      formData.append("nome", nome.trim());
-      formData.append("whatsapp", whatsapp.trim());
-      formData.append("age", age.trim());
-      facePhotos.forEach((file, i) => formData.append(`face_photo_${i + 1}`, file));
-      formData.append("selected_gallery_images", JSON.stringify(selectedGallery));
+      // 1. Inserir Cliente no Banco (Tabela: clientes)
+      const { data: clienteData, error: clienteError } = await supabase
+        .from('clientes')
+        .insert([{
+          nome_cliente: nome.trim(),
+          numero_cliente: whatsapp.trim(),
+          idade_cliente: parseInt(age.trim(), 10),
+          transaction_id: transactionId
+        }])
+        .select()
+        .single();
 
-      const response = await fetch(WEBHOOK_URL, {
-        method: "POST",
-        body: formData
+      if (clienteError || !clienteData) {
+        throw new Error("Erro ao criar cadastro do cliente.");
+      }
+
+      const clienteId = clienteData.id;
+
+      // 2. Upload das fotos do rosto enviadas para o Storage e salvar no BD
+      const enviadasPromises = facePhotos.map(async (file, index) => {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${clienteId}-rosto-${index + 1}-${Date.now()}.${fileExt}`;
+        const filePath = `rostos/${fileName}`;
+
+        // Upload pro Storage
+        const { error: uploadError } = await supabase.storage
+          .from('uploads-clientes')
+          .upload(filePath, file);
+
+        if (uploadError) throw new Error("Erro ao fazer upload da imagem do rosto.");
+
+        // Pegar URL Pública
+        const { data: { publicUrl } } = supabase.storage
+          .from('uploads-clientes')
+          .getPublicUrl(filePath);
+
+        // Preparar objeto para insert no BD
+        return {
+          cliente_id: clienteId,
+          foto_url: publicUrl
+        };
       });
 
-      if (!response.ok) throw new Error("Falha no envio");
+      const enviadasData = await Promise.all(enviadasPromises);
+
+      const { error: enviadasError } = await supabase
+        .from('fotos_enviadas_cliente')
+        .insert(enviadasData);
+
+      if (enviadasError) throw new Error("Erro ao vincular fotos do rosto do cliente.");
+
+      // 3. Salvar as fotos selecionadas da galeria (Vitrine)
+      const selecionadasData = selectedGallery.map((fotoId) => {
+        // Encontrar a URL original baseado no ID selecionado
+        const galleryItem = GALLERY_IMAGES.find(img => img.id === fotoId);
+
+        return {
+          cliente_id: clienteId,
+          foto_url: galleryItem ? galleryItem.src : fotoId
+        };
+      });
+
+      const { error: selecionadasError } = await supabase
+        .from('fotos_selecionadas')
+        .insert(selecionadasData);
+
+      if (selecionadasError) throw new Error("Erro ao salvar a seleção de fotos.");
 
       sessionStorage.setItem("lumina_submitted", "true");
       navigate("/agradecimento", { replace: true, state: { success: true } });
@@ -165,19 +247,29 @@ const Index = () => {
         <div className="mt-6 w-24 h-px mx-auto bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
       </header>
 
-      {/* Aviso de plano inválido */}
-      {!isValidPlan &&
-        <div className="max-w-lg mx-auto px-4 mb-12">
-          <div className="flex items-center gap-3 p-4 rounded border border-destructive/40 bg-destructive/5">
+      {/* Aviso de erro na transação */}
+      {transactionError && !isLoadingTransaction &&
+        <div className="max-w-lg mx-auto px-4 mb-12 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="flex items-center gap-3 p-4 rounded-lg border border-destructive/40 bg-destructive/10 backdrop-blur-sm">
             <AlertTriangle className="w-5 h-5 text-destructive shrink-0" />
-            <p className="text-sm font-body text-destructive">
-              Plano inválido ou ausente. Use um link válido com <code className="text-foreground">?plan=3</code>, <code className="text-foreground">?plan=5</code> ou <code className="text-foreground">?plan=10</code>.
+            <p className="text-sm font-body text-red-200">
+              {transactionError}
             </p>
           </div>
         </div>
       }
 
-      <main className={`max-w-6xl mx-auto px-4 pb-20 space-y-16 ${!isValidPlan ? "opacity-40 pointer-events-none select-none" : ""}`}>
+      {/* Loading state indicator */}
+      {isLoadingTransaction && (
+        <div className="max-w-lg mx-auto px-4 mb-12 flex items-center justify-center gap-3">
+          <Loader2 className="w-5 h-5 text-primary animate-spin" />
+          <p className="text-sm font-body text-muted-foreground animate-pulse">
+            Verificando pacote da sua compra...
+          </p>
+        </div>
+      )}
+
+      <main className={`max-w-6xl mx-auto px-4 pb-20 space-y-16 transition-opacity duration-700 ${transactionError || isLoadingTransaction ? "opacity-30 pointer-events-none select-none grayscale-[0.5]" : ""}`}>
         {/* Upload de Fotos */}
         <FaceUploadSection facePhotos={facePhotos} onFacePhotosChange={setFacePhotos} />
 
@@ -202,7 +294,7 @@ const Index = () => {
           selectedIds={selectedGallery}
           maxSelections={maxSelections}
           onToggle={toggleGallery}
-          disabled={!isValidPlan} />
+          disabled={!!transactionError || isLoadingTransaction} />
 
 
         <div className="w-32 h-px mx-auto bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
