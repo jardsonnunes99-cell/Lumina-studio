@@ -1466,12 +1466,14 @@
           <!-- Painel de Assinaturas -->
           <div class="pricing-panel" id="plans-section">
             <h3>Assinaturas</h3>
-            <div class="tag-popular">VEJA TUDO AGORA 🔥</div>
-            <span class="mini-badge promo header-promo">Promocional</span>
+            <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+              <span style="background: #fff2ed; color: #c2410c; font-size: 10px; font-weight: 800; padding: 4px 12px; border-radius: 999px; letter-spacing: 0.5px;">VEJA TUDO AGORA 🔥</span>
+              <span class="mini-badge promo" style="padding: 4px 12px;">Promocional</span>
+            </div>
 
             <a class="plan-primary" role="button" aria-label="Assinar 15 dias por R$ 9,90" href="javascript:void(0)" onclick="abrirPixDireto('15 Dias', 9.90)">
               <span class="plan-title">15 Dias</span>
-              <span class="plan-price">R$ 9,90</span>
+              <span class="plan-price">R$ 9,90 →</span>
             </a>
             <div class="perk-chip" role="note">NÃO PERCA ESSA OFERTA!</div>
 
@@ -1482,24 +1484,33 @@
             </div>
 
             <div class="promotions">
-              <div class="promotions-header" role="button" aria-expanded="true">
-                <h4>Promoções</h4>
-                <span class="chevron">⌄</span>
+              <div class="promotions-header" role="button" aria-expanded="true" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; cursor: pointer;">
+                <h4 style="font-size: 14px; font-weight: 700; color: #111827;">Promoções</h4>
+                <span class="chevron" style="font-size: 10px; color: #6b7280; transition: transform 0.2s;">⌄</span>
               </div>
 
-              <a class="plan-outline subscription-link featured" role="button" href="javascript:void(0)" onclick="abrirPixDireto('30 Dias', 14.90)">
-                <span class="left"><span class="plan-label">30 Dias</span> <span class="mini-badge best">Mais popular 🔥</span></span>
-                <span class="right">R$ 14,90</span>
+              <a class="plan-outline subscription-link featured" role="button" href="javascript:void(0)" onclick="abrirPixDireto('30 Dias', 14.90)" style="border: 1.5px solid #ff6b3d; padding: 12px 14px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: inherit; background: #fffcfb;">
+                <span class="left" style="display: flex; align-items: center; gap: 8px;">
+                  <span class="plan-label" style="font-size: 14px; font-weight: 700;">🏠 30 Dias</span> 
+                  <span class="mini-badge best" style="font-size: 9px;">Mais popular 🔥</span>
+                </span>
+                <span class="right" style="font-size: 14px; font-weight: 800;">R$ 14,90</span>
               </a>
 
-              <a class="plan-outline subscription-link" role="button" href="javascript:void(0)" onclick="abrirPixDireto('90 Dias', 24.90)">
-                <span class="left"><span class="plan-label">90 Dias</span> <span class="mini-badge best">Melhor oferta</span></span>
-                <span class="right">R$ 24,90</span>
+              <a class="plan-outline subscription-link" role="button" href="javascript:void(0)" onclick="abrirPixDireto('90 Dias', 24.90)" style="border: 1px solid #e5e7eb; padding: 12px 14px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: inherit;">
+                <span class="left" style="display: flex; align-items: center; gap: 8px;">
+                  <span class="plan-label" style="font-size: 14px; font-weight: 700;">90 Dias</span> 
+                  <span class="mini-badge" style="font-size: 9px; background: #fff7ed; color: #c2410c;">Melhor oferta</span>
+                </span>
+                <span class="right" style="font-size: 14px; font-weight: 800;">R$ 24,90</span>
               </a>
 
-              <a class="plan-outline subscription-link" role="button" href="javascript:void(0)" onclick="abrirPixDireto('180 Dias', 32.90)">
-                <span class="left"><span class="plan-label">180 Dias</span> <span class="mini-badge premium">Exclusivo</span></span>
-                <span class="right">R$ 32,90</span>
+              <a class="plan-outline subscription-link" role="button" href="javascript:void(0)" onclick="abrirPixDireto('180 Dias', 32.90)" style="border: 1px solid #e5e7eb; padding: 12px 14px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: inherit;">
+                <span class="left" style="display: flex; align-items: center; gap: 8px;">
+                  <span class="plan-label" style="font-size: 14px; font-weight: 700;">180 Dias</span> 
+                  <span class="mini-badge premium" style="font-size: 9px;">Exclusivo</span>
+                </span>
+                <span class="right" style="font-size: 14px; font-weight: 800;">R$ 32,90</span>
               </a>
             </div>
           </div>
@@ -1584,83 +1595,73 @@
 
             </div>
           </section>
+         <!-- Seção de Perguntas Frequentes -->
+    <div class="info-container">
+      <h2 class="faq-titulo">Perguntas Frequentes</h2>
+      <div class="faq-list">
+        
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>É sigiloso? Vai aparecer na fatura?</span>
+            <span class="faq-toggle-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            Sim, é sigiloso. Cobrança discreta, sem nomes chamativos. Seus dados ficam criptografados.
+          </div>
         </div>
-        <!-- FIM COLUNA DIREITA -->
-      </div><!-- fim two-column-layout -->
-    </div><!-- fim main-container -->
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Quando tenho acesso depois do pagamento?</span>
+            <span class="faq-toggle-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            Imediato. Pagamento aprovado = liberação em até 10s e e-mail contendo o login de acesso.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Posso cancelar quando quiser? A assinatura renova?</span>
+            <span class="faq-toggle-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            Sim. Você pode cancelar a renovação automática pela área do assinante a qualquer momento.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Tem reembolso?</span>
+            <span class="faq-toggle-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            Sim. Reembolso de 7 dias sem burocracia. Se não curtir, devolvemos 100%.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Como funciona o "Chat Telegram"?</span>
+            <span class="faq-toggle-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            Basta mandar uma mensagem no chat do produtor e combinar o acesso ao grupo VIP.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Posso pedir conteúdo personalizado?</span>
+            <span class="faq-toggle-icon">+</span>
+          </button>
+          <div class="faq-answer">
+             Sim! Solicitações podem ser feitas diretamente no chat do produtor, com o conteúdo desejado.
+          </div>
+        </div>
 
       </div>
     </div>
-
-    <!-- Novo container para Garantia e FAQ -->
-    <div class="info-container">
-      <div class="garantia-faq-wrapper">
-        <!-- Container do FAQ -->
-        <div class="faq-container">
-          <h2 class="faq-titulo">Perguntas Frequentes</h2>
-          <div class="faq-list">
-            <div class="faq-item">
-              <button class="faq-question">
-                <span>É sigiloso? Vai aparecer na fatura?</span>
-                <span class="faq-toggle-icon">+</span>
-              </button>
-              <div class="faq-answer">
-                Sim, é sigiloso. Cobrança discreta, sem nomes chamativos. Seus dados ficam criptografados.
-              </div>
-            </div>
-
-            <div class="faq-item">
-              <button class="faq-question">
-                <span>Quando tenho acesso depois do pagamento?</span>
-                <span class="faq-toggle-icon">+</span>
-              </button>
-              <div class="faq-answer">
-                Imediato. Pagamento aprovado = liberação em até 10s e e-mail contendo o login de acesso.
-              </div>
-            </div>
-
-            <div class="faq-item">
-              <button class="faq-question">
-                <span class="faq-icon"></span>
-                Posso cancelar quando quiser? A assinatura renova?
-              </button>
-              <div class="faq-answer">
-                Sim. Vocáª pode cancelar a renovação automática pela área do assinante a qualquer momento.
-              </div>
-            </div>
-
-            <div class="faq-item">
-              <button class="faq-question">
-                <span class="faq-icon"></span>
-                Tem reembolso?
-              </button>
-              <div class="faq-answer">
-                Sim. Reembolso de 7 dias sem burocracia. Se não curtir, devolvemos 100%.
-              </div>
-            </div>
-
-            <div class="faq-item">
-              <button class="faq-question">
-                <span class="faq-icon"></span>
-                Como funciona a Ã¢â‚¬Å“Chat telegramÃ¢â‚¬Â?
-              </button>
-              <div class="faq-answer">
-                Basta mandar uma mensagem no chat do produtor e combinar.
-              </div>
-            </div>
-
-            <div class="faq-item">
-              <button class="faq-question">
-                <span class="faq-icon"></span>
-                Posso pedir conteúdo personalizado?
-              </button>
-              <div class="faq-answer">
-                Sim! Solciitações podem ser feitas no chat do produtor, com o conteúdo desejado.
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 
     <div class="footer-cta">
@@ -1672,7 +1673,7 @@
 
     <p class="footer-legal-links">
       <a href="">Termos de Uso</a>
-      <span class="separator">Ã¢â‚¬Â¢</span>
+      <span class="separator">•</span>
       <a href="">Política de Privacidade</a>
     </p>
     </main>
